@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import ItemManagerContract from "./contracts/ItemManager.json";
-import ItemContract from "./contracts/Item.json"
+import ItemManager from "./contracts/ItemManager.json";
+import Item from "./contracts/Item.json"
 import getWeb3 from "./getWeb3";
 
 import "./App.css";
@@ -27,7 +27,7 @@ class App extends Component {
         Item.abi, 
         Item.networks[networkId] && Item.networks[networkId].address, 
       ); 
- 
+      this.listenToPaymentEvent();
       this.setState({loaded:true}); 
        
     } catch (error) { 
@@ -49,13 +49,22 @@ class App extends Component {
     }); 
   }
 
+  listenToPaymentEvent = () => { 
+    let self = this; 
+    this.itemManager.events.SupplyChainStep().on("data", async function(evt) { 
+      console.log(evt);
+      let item = await self.itemManager.methods.items(evt.returnValues._itemIndex).call(); 
+      alert("Item "+item._identifier+" was paid please deliver it now.");
+    }); 
+  }
+
   handleSubmit = async () => { 
     const { cost, itemName } = this.state; 
     console.log(itemName, cost, this.itemManager); 
-    let result = await this.itemManager.methods.createItem(itemName, cost).send({ from: 
-    this.accounts[0] }); 
+    let result = await this.itemManager.methods.createItem(itemName, cost).send({ from: this.accounts[0] }); 
     console.log(result); 
-    alert("Send "+cost+" Wei to "+result.events.SupplyChainStep.returnValues._address); 
+
+    alert("Send "+cost+" Wei to "+result.events.SupplyChainStep.returnValues._itemAddress); 
   }
 
   render() { 
