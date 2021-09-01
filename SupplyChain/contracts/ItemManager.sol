@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.1;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "../../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "./Item.sol";
 
 contract ItemManager is Ownable {
